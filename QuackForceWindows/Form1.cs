@@ -51,8 +51,7 @@ namespace QuackForceWindows
             { "WM_KEYUP", 0x0101 },
             { "WM_CHAR", 0x0102 },
             { "WM_COMMAND", 0x0111 },
-            { "WM_SYSCOMMAND", 0x0112 },
-            // Adicione mais conforme necessário
+            { "WM_SYSCOMMAND", 0x0112 }
         };
 
         public Form1()
@@ -92,6 +91,7 @@ namespace QuackForceWindows
             if (string.IsNullOrEmpty(processName) || string.IsNullOrEmpty(hexMsg))
             {
                 statusLabel.Text = "Preencha todos os campos.";
+                statusLabel.ForeColor = W3Css.Red;
                 return;
             }
 
@@ -102,12 +102,14 @@ namespace QuackForceWindows
                 if (!WindowsMessages.TryGetValue(hexMsg.ToUpper(), out msg))
                 {
                     statusLabel.Text = "Mensagem WM_ desconhecida.";
+                    statusLabel.ForeColor = W3Css.Red;
                     return;
                 }
             }
             else if (!uint.TryParse(hexMsg, System.Globalization.NumberStyles.HexNumber, null, out msg))
             {
                 statusLabel.Text = "Hex inválido.";
+                statusLabel.ForeColor = W3Css.Red;
                 return;
             }
 
@@ -120,20 +122,21 @@ namespace QuackForceWindows
                     wParamText.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ?
                     wParamText.Substring(2) : wParamText, wParamText.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? 16 : 10);
             }
-            catch { statusLabel.Text = "wParam inválido."; return; }
+            catch { statusLabel.Text = "wParam inválido."; statusLabel.ForeColor = W3Css.Red; return; }
             try
             {
                 lParam = (IntPtr)Convert.ToInt32(
                     lParamText.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ?
                     lParamText.Substring(2) : lParamText, lParamText.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? 16 : 10);
             }
-            catch { statusLabel.Text = "lParam inválido."; return; }
+            catch { statusLabel.Text = "lParam inválido."; statusLabel.ForeColor = W3Css.Red; return; }
 
             // Procura o processo pelo nome
             Process[] procs = Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(processName));
             if (procs.Length == 0)
             {
                 statusLabel.Text = "Janela não encontrada.";
+                statusLabel.ForeColor = W3Css.Red;
                 return;
             }
 
@@ -148,12 +151,14 @@ namespace QuackForceWindows
             if (targetHwnd == IntPtr.Zero)
             {
                 statusLabel.Text = "Handle da janela não encontrado.";
+                statusLabel.ForeColor = W3Css.Red;
                 return;
             }
 
             // Envia a mensagem
             SendMessage(targetHwnd, msg, wParam, lParam);
             statusLabel.Text = $"Mensagem 0x{msg:X} enviada!";
+            statusLabel.ForeColor = W3Css.Green;
         }
 
         private void label1_Click(object sender, EventArgs e)
